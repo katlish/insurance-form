@@ -11,12 +11,7 @@ const API = axios.create({
 	responseType: 'json',
 });
 
-// TODO: how to handle catch?
 export const sendUserDetails = async (details) => {
-	try {
-        const { data } = await API.post('/user', details);
-        return data;
-	} catch (e) {
-		throw e;
-	}
+		const { data } = await API.post('/user', details);
+		return data;
 };

@@ -12,16 +12,16 @@ exports.addUserDetails = async (req, res, next) => {
         });
         // const response = await axios.post(process.env.SPROUTT_QUOTES_API, req.body);
         // res.status(201).json(response.data);
-        res.status(201).json({
-            price: 75.6,
-            coverage: 2000000,
-            term: 30,
-            carrier: 'Assurity Life Insurance',
-            carrier_logo: 'https://s3.amazonaws.com/sproutt-images/assurity_small.png'
-          });
-        // const error = new Error("Test error");
-        // error.statusCode = 401;
-		// throw error;
+        // res.status(201).json({
+        //     price: 75.6,
+        //     coverage: 2000000,
+        //     term: 30,
+        //     carrier: 'Assurity Life Insurance',
+        //     carrier_logo: 'https://s3.amazonaws.com/sproutt-images/assurity_small.png'
+        //   });
+        const error = new Error("Test error");
+        error.statusCode = 401;
+		    throw error;
     }catch(err){
         if (!err.statusCode) {
 			err.statusCode = 500;

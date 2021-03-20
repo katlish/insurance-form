@@ -1,13 +1,13 @@
 import React from 'react';
-import LifeInsurancePage from './containers/LifeInsurancePage';
+import LifeInsurancePage from './components/LifeInsurancePage/LifeInsurancePage';
 import './App.css';
 
 function App() {
-  return (
-    <div className="App">
-      <LifeInsurancePage/>
-    </div>
-  );
+	return (
+		<div className="App">
+			<LifeInsurancePage />
+		</div>
+	);
 }
 
 export default App;

@@ -1,68 +1,62 @@
-import React, { useState,useEffect } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { Form, Button, Spinner } from 'react-bootstrap';
 import { validationSchema } from './Validations';
 import { useFormik } from 'formik';
+import { localStorageKey } from '../../constants/main';
 
-
-// TODO: clear form after submit
-//TODO: ask how to handle toggle gender?
-
-const InsuranceForm = ({values, submitHandler, localStorageKey}) => {
-	const [formValues, setformValues] = useState(values);
-	//TODO: why cant insert [formValues] as a dependency in useEffect ? 
-	useEffect(() => {
-		const savedValues = window.localStorage.getItem(localStorageKey);
-		if (savedValues) {
-			setformValues(JSON.parse(savedValues));
-		}
-	}, [localStorageKey]);
-
+const InsuranceForm = ({ values, submitHandler }) => {
 	const blurHandler = (e) => {
 		try {
 			formik.handleBlur(e);
-			let currentFormVal = formValues;
-			currentFormVal[e.currentTarget.id] = e.currentTarget.value;
-			setformValues(currentFormVal);
-			window.localStorage.setItem(localStorageKey, JSON.stringify(currentFormVal));
-		}catch(e){
+			localStorage.setItem(
+				localStorageKey,
+				JSON.stringify({
+					...formik.values,
+					[e.target.id]: e.target.value,
+				}),
+			);
+		} catch (e) {
 			throw e;
 		}
-	}
-	
-    const formik = useFormik({
-        initialValues: formValues,
-        validationSchema,
+	};
+
+	const formik = useFormik({
+		initialValues: values,
+		validationSchema,
 		enableReinitialize: true,
-        onSubmit: async (values, { setStatus, resetForm }) => {
+		onSubmit: async (values, { setStatus, resetForm }) => {
 			const userDetails = {
 				...values,
-				gender: values.gender ? "female" : "male",
-				birthdate: values.birthdate + ' 00:00:00'
-			}
-            setStatus(null);
-            try {
+				birthdate: values.birthdate + ' 00:00:00',
+			};
+			setStatus(null);
+			try {
 				await submitHandler(userDetails);
-                setStatus({
-                    type: 'success',
+				setStatus({
+					type: 'success',
+					text: 'Success',
 				});
-				window.localStorage.removeItem(localStorageKey);
-				resetForm({});
-				setformValues({});
-            } catch (e) {
-                console.log('e', e);
-                setStatus({
-                    type: 'danger',
-                    text: e.response.data.message,
-                });
-            }
-        },
+				localStorage.removeItem(localStorageKey);
+				resetForm();
+			} catch (e) {
+				setStatus({
+					type: 'danger',
+					text: e.response.data.message,
+				});
+			}
+		},
 	});
 
+	// useEffect(() => {
+	// 	formik.setStatus({
+	// 		type: 'danger',
+	// 		text: 'Error',
+	// 	});
+	// }, []);
+
 	return (
-        <>
-         {formik.isSubmitting && <Spinner animation="border" variant="info" />}
-         <Form noValidate>
+		<Form noValidate>
 			<Form.Group controlId="zipcode">
 				<Form.Label>Zipcode</Form.Label>
 				<Form.Control
@@ -78,19 +72,29 @@ const InsuranceForm = ({values, submitHandler, localStorageKey}) => {
 					{formik.errors.zipcode}
 				</Form.Control.Feedback>
 			</Form.Group>
-            <Form.Group className="d-flex flex-column">
-				<Form.Label >Gender</Form.Label>
-                <div className="d-inline-flex">
-                    <Form.Label>Male</Form.Label>
-                    <Form.Switch 
-                        id="gender"
-                        type="switch"
-                        label="Female"
-                        onChange={formik.handleChange}
-                    />
-                </div>
+			<Form.Group className="d-flex flex-column">
+				<Form.Label>Gender</Form.Label>
+				<div className="d-inline-flex align-items-center">
+					<Form.Check
+						type="radio"
+						label="male"
+						id="male"
+						className="mr-2"
+						checked={formik.values.gender === 'male'}
+						onBlur={blurHandler}
+						onChange={() => formik.setFieldValue('gender', 'male')}
+					/>
+					<Form.Check
+						type="radio"
+						label="female"
+						id="female"
+						onBlur={blurHandler}
+						checked={formik.values.gender === 'female'}
+						onChange={() => formik.setFieldValue('gender', 'female')}
+					/>
+				</div>
 			</Form.Group>
-            <Form.Group controlId="birthdate">
+			<Form.Group controlId="birthdate">
 				<Form.Label>Birthdate</Form.Label>
 				<Form.Control
 					onChange={formik.handleChange}
@@ -104,13 +108,13 @@ const InsuranceForm = ({values, submitHandler, localStorageKey}) => {
 					{formik.errors.birthdate}
 				</Form.Control.Feedback>
 			</Form.Group>
-            <Form.Group controlId="income">
+			<Form.Group controlId="income">
 				<Form.Label>Income</Form.Label>
 				<Form.Control
 					onChange={formik.handleChange}
 					onBlur={blurHandler}
 					value={formik.values.income}
-					type="number"
+					type="text"
 					isInvalid={formik.touched.income && formik.errors.income}
 					isValid={formik.touched.income && !formik.errors.income}
 				></Form.Control>
@@ -118,30 +122,38 @@ const InsuranceForm = ({values, submitHandler, localStorageKey}) => {
 					{formik.errors.income}
 				</Form.Control.Feedback>
 			</Form.Group>
-            <Button
-                disabled={formik.isSubmitting}
-                variant="success"
-                onClick={formik.handleSubmit}
-            >
-                Submit
-            </Button>
+			<div className="d-flex justify-content-end align-items-center">
+				{formik.status && (
+					<div className={`text-${formik.status.type} mr-auto`}>
+						{formik.status.text}
+					</div>
+				)}
+				{formik.isSubmitting && (
+					<Spinner animation="border" variant="info" className="mr-2" />
+				)}
+				<Button
+					disabled={formik.isSubmitting}
+					variant="success"
+					onClick={formik.handleSubmit}
+				>
+					Submit
+				</Button>
+			</div>
 		</Form>
-        </>
-		
 	);
 };
 
 InsuranceForm.propTypes = {
-    values: PropTypes.object,
-    submitHandler: PropTypes.func
+	values: PropTypes.object,
+	submitHandler: PropTypes.func,
 };
 
 InsuranceForm.defaultProps = {
 	values: {
-		zipcode: '', 
-        gender: true,  
-        birthdate: '',  
-        income: ''
+		zipcode: '',
+		gender: 'male',
+		birthdate: '',
+		income: '',
 	},
 };
 
