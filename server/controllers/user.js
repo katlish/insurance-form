@@ -10,22 +10,13 @@ exports.addUserDetails = async (req, res, next) => {
                 birthdate, 
                 income
         });
-        // const response = await axios.post(process.env.SPROUTT_QUOTES_API, req.body);
-        // res.status(201).json(response.data);
-        // res.status(201).json({
-        //     price: 75.6,
-        //     coverage: 2000000,
-        //     term: 30,
-        //     carrier: 'Assurity Life Insurance',
-        //     carrier_logo: 'https://s3.amazonaws.com/sproutt-images/assurity_small.png'
-        //   });
-        const error = new Error("Test error");
-        error.statusCode = 401;
-		    throw error;
+        const response = await axios.post(process.env.SPROUTT_QUOTES_API, req.body);
+        res.status(201).json(response.data);
     }catch(err){
         if (!err.statusCode) {
-			err.statusCode = 500;
+          err.statusCode = 500;
         }
-		next(err);
+        err.message = "addUserDetails failed";
+        next(err);
     }
 }

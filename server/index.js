@@ -22,7 +22,11 @@ app.use('/user', userRoutes);
 
 app.use((error, req, res, next) => {
 	const { statusCode, message, data } = error;
-	res.status(statusCode).json({ message, data });
+	if(!statusCode){
+		error.statusCode = 500;
+	}
+
+	res.status(error.statusCode).json({ message, data });
 });
 
 mongoose

@@ -20,7 +20,7 @@ const LifeInsurancePage = () => {
 			<Header title="Life Insurance Form" />
 			<Container className="justify-content-md-center py-5">
 				{data ? (
-					<ResponseQuoteCard
+					<ResponseQuoteCard 
 						price={data?.price}
 						coverage={data?.coverage}
 						term={data?.term}

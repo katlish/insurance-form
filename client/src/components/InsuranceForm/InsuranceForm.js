@@ -42,18 +42,11 @@ const InsuranceForm = ({ values, submitHandler }) => {
 			} catch (e) {
 				setStatus({
 					type: 'danger',
-					text: e.response.data.message,
+					text: e.message || e.response.data.message,
 				});
 			}
 		},
 	});
-
-	// useEffect(() => {
-	// 	formik.setStatus({
-	// 		type: 'danger',
-	// 		text: 'Error',
-	// 	});
-	// }, []);
 
 	return (
 		<Form noValidate>
